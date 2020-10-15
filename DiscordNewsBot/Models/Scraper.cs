@@ -57,8 +57,7 @@ namespace DiscordNewsBot.Models
                 Article article = new Article();
                 article.url = nodes[i].SelectSingleNode(".//a").Attributes["href"].Value;
                 article.title = nodes[i].SelectSingleNode(".//h3/a").InnerText;
-                //description missing here
-                article.content = nodes[i].SelectSingleNode(".//text()").InnerText;
+                article.content = nodes[i].GetDirectInnerText().Trim() + "...";
                 article.thumbnail = nodes[i].SelectSingleNode(".//img").Attributes["src"].Value;
                 article.date = nodes[i].SelectSingleNode(".//span").InnerText.Replace(" ", "");
                 articles.Add(article);

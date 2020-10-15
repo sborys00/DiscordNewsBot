@@ -7,12 +7,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace DiscordNewsBot.Models
 {
     public class Webhooks
     {
-        public async void SendWebhook(string url, Article article)
+        public async Task SendWebhook(string url, Article article)
         {
             using(WebClient webClient = new WebClient())
             {
