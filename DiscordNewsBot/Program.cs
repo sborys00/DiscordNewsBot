@@ -12,12 +12,13 @@ namespace DiscordNewsBot
     {
         //loop interval in ms
         private static int interval = 30000;
+        private static readonly string[] webhookUrls = {"https://discordapp.com/api/webhooks/688377806010449993/CfDoijYes_1G3wP9yei32A2Gbf0NP1i7zbnMQ8gSqdojXesK6BuLs1P5M5gK4D7V9BuG", "https://discordapp.com/api/webhooks/767451587542777906/vVDrx-UptCCPyCry6TAcg3hGaFl2EQMfgK3hQ9rrSx-v3Pdtw31jWbJFuvZZrT_8a-9s"};
 
         private static Scraper scraper;
         private static Webhooks webhooks;
         private static System.Timers.Timer timer;
 
-        private static Scheduler scheduler;
+        private static WebhookSender webhookSender;
 
         static void Main(string[] args)
         {
@@ -25,7 +26,7 @@ namespace DiscordNewsBot
             {
                 scraper = services.GetRequiredService<Scraper>();
                 webhooks = services.GetRequiredService<Webhooks>();
-                scheduler = new Scheduler(webhooks);
+                webhookSender = new WebhookSender(webhooks, webhookUrls);
                 Task.Run(() => Logger.LogAsync("Program starting..."));
             }
 
@@ -52,9 +53,7 @@ namespace DiscordNewsBot
             List<Article> articles = new List<Article>();
             await Logger.LogAsync("Looking for news...");
             articles = await scraper.GetAllArticlesAsync();
-            //webhooks.SendWebhook("https://discordapp.com/api/webhooks/688377806010449993/CfDoijYes_1G3wP9yei32A2Gbf0NP1i7zbnMQ8gSqdojXesK6BuLs1P5M5gK4D7V9BuG", articles[0]);
-            //webhooks.SendWebhook("https://discordapp.com/api/webhooks/764523413858942977/1pynVlbb7shV5w04zET_Le-yXWf8-uRymuHAus86l06qhFd_K73Y6wlwrzEZ_zgaB9_J", articles[0]);
-            await scheduler.SendArticlesAsync(articles, "https://discordapp.com/api/webhooks/688377806010449993/CfDoijYes_1G3wP9yei32A2Gbf0NP1i7zbnMQ8gSqdojXesK6BuLs1P5M5gK4D7V9BuG");
+            webhookSender.EnqueueArticles(articles);
             timer.Start();
         }
 	}
