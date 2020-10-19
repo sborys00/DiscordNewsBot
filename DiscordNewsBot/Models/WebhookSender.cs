@@ -7,7 +7,7 @@ using System.Timers;
 namespace DiscordNewsBot.Models
 {
     class WebhookSender
-    {      
+    {
         const int defInterval = 1000; //time in ms
         private readonly Webhooks _webhooks;
         private readonly Memory _memory;
@@ -70,5 +70,6 @@ namespace DiscordNewsBot.Models
             }
                 return newArticles;
         }
+
     }
 }

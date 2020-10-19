@@ -11,7 +11,7 @@ namespace DiscordNewsBot
     public class Program
     {
         //loop interval in ms
-        private static int interval = 30000;
+        private static int interval = 60000;
         private static readonly string[] webhookUrls = {"https://discordapp.com/api/webhooks/688377806010449993/CfDoijYes_1G3wP9yei32A2Gbf0NP1i7zbnMQ8gSqdojXesK6BuLs1P5M5gK4D7V9BuG", "https://discordapp.com/api/webhooks/767451587542777906/vVDrx-UptCCPyCry6TAcg3hGaFl2EQMfgK3hQ9rrSx-v3Pdtw31jWbJFuvZZrT_8a-9s"};
 
         private static Scraper scraper;
