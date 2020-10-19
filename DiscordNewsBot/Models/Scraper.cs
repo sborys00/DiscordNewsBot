@@ -28,6 +28,8 @@ namespace DiscordNewsBot.Models
                 articles.AddRange(task);
             }
 
+            articles.Reverse();
+
             return articles;
         }
 

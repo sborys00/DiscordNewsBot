@@ -26,7 +26,7 @@ namespace DiscordNewsBot
             {
                 scraper = services.GetRequiredService<Scraper>();
                 webhooks = services.GetRequiredService<Webhooks>();
-                webhookSender = new WebhookSender(webhooks, webhookUrls);
+                webhookSender = new WebhookSender(webhooks, services.GetRequiredService<Memory>(), webhookUrls);
                 Task.Run(() => Logger.LogAsync("Program starting..."));
             }
 
@@ -45,6 +45,7 @@ namespace DiscordNewsBot
 			return new ServiceCollection()
                 .AddSingleton<Scraper>()
                 .AddSingleton<Webhooks>()
+                .AddSingleton<Memory>()
 				.BuildServiceProvider();
 		}
 
