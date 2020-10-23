@@ -27,7 +27,7 @@ namespace DiscordNewsBot.Models
         public void EnqueueArticles(List<Article> articles)
         {
             articles = FilterOutSentArticles(articles);
-            articles = SortArticlesByDate(articles);
+            //articles = SortArticlesByDate(articles);
             foreach(Article article in articles)
             {
                 this.articlesToSend.Enqueue(article);                
@@ -74,8 +74,11 @@ namespace DiscordNewsBot.Models
 
         public List<Article> SortArticlesByDate(List<Article> articles)
         {
-            ArticleDateComparer adc = new ArticleDateComparer();
-            articles.Sort(adc);
+            if(articles.Count >= 2)
+            {
+                ArticleDateComparer adc = new ArticleDateComparer();
+                articles.Sort(adc);
+            }
             return articles;
         }
 

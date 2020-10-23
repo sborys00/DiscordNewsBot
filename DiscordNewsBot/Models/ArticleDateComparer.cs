@@ -11,7 +11,13 @@ namespace DiscordNewsBot.Models
         {
             DateTime aDate = DateTime.Parse(a.date);
             DateTime bDate = DateTime.Parse(b.date);
-            return DateTime.Compare(aDate, bDate);
+
+            if (aDate > bDate)
+                return 1;
+            else if (aDate < bDate)
+                return -1;
+            return 0;
+            //return DateTime.Compare(aDate, bDate);
         }
     }
 }
