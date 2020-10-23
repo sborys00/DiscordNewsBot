@@ -11,7 +11,7 @@ namespace DiscordNewsBot.Models
     {
         public async Task<List<Article>> GetAllArticlesAsync()
         {
-            string[] urls = { "https://wi.pb.edu.pl/aktualnosci/" };
+            string[] urls = { "https://wi.pb.edu.pl/aktualnosci/", "https://pb.edu.pl/aktualnosci/" };
 
             List<Task<List<Article>>> tasks = new List<Task<List<Article>>>();
             foreach(var url in urls)

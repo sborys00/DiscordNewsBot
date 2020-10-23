@@ -17,6 +17,10 @@ namespace DiscordNewsBot.Models
 
         public Memory()
         {
+            //To make sure file exists
+            OpenFile();
+            CloseFile();
+
             ClearOldUrls();
             string url;
             while((url = reader.ReadLine()) != null)

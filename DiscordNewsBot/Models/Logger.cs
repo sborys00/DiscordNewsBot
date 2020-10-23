@@ -14,6 +14,14 @@ namespace DiscordNewsBot.Models
             Console.Write(timestamp);
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write(message + '\n');
+        }        
+        public static void Log(string message)
+        {
+            string timestamp = $"[{DateTime.UtcNow.ToString()}] ";
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(timestamp);
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(message + '\n');
         }
 
     }

@@ -12,7 +12,7 @@ namespace DiscordNewsBot
     {
         //loop interval in ms
         private static int interval = 60000;
-        private static readonly string[] webhookUrls = {"https://discordapp.com/api/webhooks/688377806010449993/CfDoijYes_1G3wP9yei32A2Gbf0NP1i7zbnMQ8gSqdojXesK6BuLs1P5M5gK4D7V9BuG", "https://discordapp.com/api/webhooks/767451587542777906/vVDrx-UptCCPyCry6TAcg3hGaFl2EQMfgK3hQ9rrSx-v3Pdtw31jWbJFuvZZrT_8a-9s"};
+        private static string[] webhookUrls;
 
         private static Scraper scraper;
         private static Webhooks webhooks;
@@ -22,14 +22,25 @@ namespace DiscordNewsBot
 
         static void Main(string[] args)
         {
+            Config cfg = new Config("config.txt");
             using (var services = ConfigureServices())
             {
                 scraper = services.GetRequiredService<Scraper>();
                 webhooks = services.GetRequiredService<Webhooks>();
+                try
+                {
+                    webhookUrls = cfg.LoadWebhookUrls();
+                }
+                catch (Exception e)
+                {
+                    Logger.Log(e.Message);
+                    Logger.Log("Loading Webhook urls failed. Make sure \"config.txt\" exist and is not empty");
+                    return;
+                }
                 webhookSender = new WebhookSender(webhooks, services.GetRequiredService<Memory>(), webhookUrls);
                 Task.Run(() => Logger.LogAsync("Program starting..."));
             }
-
+            
             timer = new System.Timers.Timer(interval);
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = false;
@@ -51,11 +62,19 @@ namespace DiscordNewsBot
 
         private static async void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
-            List<Article> articles = new List<Article>();
-            await Logger.LogAsync("Looking for news...");
-            articles = await scraper.GetAllArticlesAsync();
-            webhookSender.EnqueueArticles(articles);
-            timer.Start();
+            try
+            {
+                List<Article> articles = new List<Article>();
+                await Logger.LogAsync("Looking for news...");
+                articles = await scraper.GetAllArticlesAsync();
+                webhookSender.EnqueueArticles(articles);
+                timer.Start();
+            }
+            catch(Exception exception)
+            {
+                await Logger.LogAsync(exception.Message);
+            }
         }
+
 	}
 }

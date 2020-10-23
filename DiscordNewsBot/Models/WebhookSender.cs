@@ -27,12 +27,11 @@ namespace DiscordNewsBot.Models
         public void EnqueueArticles(List<Article> articles)
         {
             articles = FilterOutSentArticles(articles);
+            articles = SortArticlesByDate(articles);
             foreach(Article article in articles)
             {
-                this.articlesToSend.Enqueue(article);
-                _memory.SaveUrl(article.url);
+                this.articlesToSend.Enqueue(article);                
             }
-            _memory.FlushWriter();
             timer.Start();
             timer.Elapsed += async (source, e) => await SendEvent(source, e);
         }
@@ -55,6 +54,8 @@ namespace DiscordNewsBot.Models
             foreach(string url in webhookUrls)
             {
                 await _webhooks.SendWebhook(url, article);
+                _memory.SaveUrl(article.url);
+                _memory.FlushWriter();
             }
         }
 
@@ -69,6 +70,13 @@ namespace DiscordNewsBot.Models
                 }
             }
                 return newArticles;
+        }
+
+        public List<Article> SortArticlesByDate(List<Article> articles)
+        {
+            ArticleDateComparer adc = new ArticleDateComparer();
+            articles.Sort(adc);
+            return articles;
         }
 
     }
