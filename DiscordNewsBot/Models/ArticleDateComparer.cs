@@ -9,15 +9,28 @@ namespace DiscordNewsBot.Models
     {
         public int Compare(Article a, Article b)
         {
-            DateTime aDate = DateTime.Parse(a.date);
-            DateTime bDate = DateTime.Parse(b.date);
+            string[] aDate = a.date.Split("-");
+            string[] bDate = b.date.Split("-");
 
-            if (aDate > bDate)
-                return 1;
-            else if (aDate < bDate)
-                return -1;
+            //0-day 1-month 2-year
+            int[] aDateInt = new int[3];
+            int[] bDateInt = new int[3];
+            
+            for (int i = 0; i < 3; i++)
+            {
+                aDateInt[i] = Int32.Parse(aDate[i]);
+                bDateInt[i] = Int32.Parse(bDate[i]);
+            }
+
+            for (int i = 2; i >= 0; i--)
+            {
+                if (aDateInt[i] > bDateInt[i])
+                    return 1;
+                else if (aDateInt[i] < bDateInt[i])
+                    return -1;
+            }
+
             return 0;
-            //return DateTime.Compare(aDate, bDate);
         }
     }
 }

@@ -26,8 +26,8 @@ namespace DiscordNewsBot.Models
 
         public void EnqueueArticles(List<Article> articles)
         {
-            articles = FilterOutSentArticles(articles);
-            //articles = SortArticlesByDate(articles);
+            //articles = FilterOutSentArticles(articles);
+            articles = SortArticlesByDate(articles);
             foreach(Article article in articles)
             {
                 this.articlesToSend.Enqueue(article);                
@@ -54,9 +54,9 @@ namespace DiscordNewsBot.Models
             foreach(string url in webhookUrls)
             {
                 await _webhooks.SendWebhook(url, article);
-                _memory.SaveUrl(article.url);
-                _memory.FlushWriter();
             }
+            _memory.SaveUrl(article.url);
+            _memory.FlushWriter();
         }
 
         public List<Article> FilterOutSentArticles(List<Article> articles)
