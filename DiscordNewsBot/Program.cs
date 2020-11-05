@@ -37,7 +37,7 @@ namespace DiscordNewsBot
                     Logger.Log("Loading Webhook urls failed. Make sure \"config.txt\" exist and is not empty");
                     return;
                 }
-                webhookSender = new WebhookSender(webhooks, services.GetRequiredService<Memory>(), webhookUrls);
+                webhookSender = new WebhookSender(webhooks, webhookUrls);
                 Task.Run(() => Logger.LogAsync("Program starting..."));
             }
             
@@ -56,7 +56,8 @@ namespace DiscordNewsBot
 			return new ServiceCollection()
                 .AddSingleton<Scraper>()
                 .AddSingleton<Webhooks>()
-                .AddSingleton<Memory>()
+                .AddSingleton<WebhookSender>()
+                .AddSingleton<IMemory, Memory>()
 				.BuildServiceProvider();
 		}
 

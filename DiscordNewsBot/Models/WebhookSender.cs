@@ -10,13 +10,13 @@ namespace DiscordNewsBot.Models
     {
         const int defInterval = 1000; //time in ms
         private readonly Webhooks _webhooks;
-        private readonly Memory _memory;
+        private readonly IMemory _memory;
         private readonly string[] webhookUrls;
         Queue<Article> articlesToSend = new Queue<Article>();
         Timer timer = new System.Timers.Timer(defInterval);
 
 
-        public WebhookSender(Webhooks webhooks, Memory memory, string[] webhookUrls)
+        public WebhookSender(IMemory memory, Webhooks webhooks, string[] webhookUrls)
         {
             this._webhooks = webhooks;
             this._memory = memory;

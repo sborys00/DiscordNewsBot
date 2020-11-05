@@ -6,7 +6,14 @@ using System.Linq;
 
 namespace DiscordNewsBot.Models
 {
-    public class Memory
+    public interface IMemory
+    {
+        public bool IsInArchive(string url);
+        public void SaveUrl(string url);
+        public void FlushWriter();
+    }
+
+    public class Memory : IMemory
     {
         private const string fileName = "archive.txt";
         private const int fileCleaningThreshold = 50;
@@ -54,7 +61,7 @@ namespace DiscordNewsBot.Models
             writer.Flush();
         }
 
-        public int ClearOldUrls()
+        private int ClearOldUrls()
         {
             int removedItems = 0;
 
@@ -71,12 +78,12 @@ namespace DiscordNewsBot.Models
             return removedItems;
         }
 
-        public void CloseFile()
+        private void CloseFile()
         {
             if (fs != null)
                 fs.Close();
         }
-        public void OpenFile()
+        private void OpenFile()
         {
             this.fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             this.reader = new StreamReader(fs);
