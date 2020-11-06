@@ -57,12 +57,12 @@ namespace DiscordNewsBot
             Task.Run(() => Task.Delay(Timeout.Infinite)).GetAwaiter().GetResult();
         }
 
-        private static async void OnTimedEvent(Object source, ElapsedEventArgs e)
+        private static async void OnTimedEvent(Object source, ElapsedEventArgs args)
         {
             try
             {
                 List<Article> articles = new List<Article>();
-                await Logger.LogAsync("Looking for news...");
+                Log.Logger.Information("Looking for news..");
                 articles = await _scraper.GetAllArticlesAsync();
                 _webhookSender.EnqueueArticles(articles);
 
@@ -71,9 +71,9 @@ namespace DiscordNewsBot
 
                 timer.Start();
             }
-            catch(Exception exception)
+            catch(Exception e)
             {
-                await Logger.LogAsync(exception.Message);
+                Log.Logger.Error(e.Message);
             }
         }
 

@@ -3,6 +3,7 @@ using System.Net;
 using System.Text.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace DiscordNewsBot.Models
 {
@@ -19,17 +20,14 @@ namespace DiscordNewsBot.Models
 
                 using (var httpClient = new HttpClient())
                 {
-
-                    // Do the actual request and await the response
                     var httpResponse = await httpClient.PostAsync(url, httpContent);
 
-                    // If the response contains content we want to read it!
                     if (httpResponse.Content != null)
                     {
                         string responseContent = await httpResponse.Content.ReadAsStringAsync();
                         if (responseContent.Length > 0)
                         {
-                            await Logger.LogAsync(responseContent);
+                            Log.Logger.Warning(responseContent);
                         }
                     }
                 }
