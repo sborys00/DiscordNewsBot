@@ -33,7 +33,7 @@ namespace DiscordNewsBot
             timer.Enabled = true;
             OnTimedEvent(null, null);
 
-            //Keep the program running
+            //Keeps the program running
             Task.Run(() => Task.Delay(Timeout.Infinite)).GetAwaiter().GetResult();
         }
 
