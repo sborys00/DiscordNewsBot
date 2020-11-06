@@ -338,4 +338,6 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
-/DiscordNewsBot/Models/appsettings.DEVELOPMENT.json
+appsettings.DEVELOPMENT.json
+appsettings.Development.json
+appsettings.Production.json
