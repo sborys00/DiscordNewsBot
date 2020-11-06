@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace DiscordNewsBot.Models
 {
-    public class Webhooks
+    public class Webhooks : IWebhooks
     {
         public async Task SendWebhook(string url, Article article)
         {
-            using(WebClient webClient = new WebClient())
+            using (WebClient webClient = new WebClient())
             {
                 Embed embed = new Embed(article);
                 string json = "{\"embeds\" : [" + JsonSerializer.Serialize(embed) + "]}";
@@ -32,9 +32,9 @@ namespace DiscordNewsBot.Models
                     if (httpResponse.Content != null)
                     {
                         string responseContent = await httpResponse.Content.ReadAsStringAsync();
-                        if(responseContent.Length > 0)
+                        if (responseContent.Length > 0)
                         {
-                             await Logger.LogAsync(responseContent);
+                            await Logger.LogAsync(responseContent);
                         }
                     }
                 }

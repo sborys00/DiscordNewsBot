@@ -14,30 +14,16 @@ namespace DiscordNewsBot
         private static int interval = 60000;
         private static string[] webhookUrls;
 
-        private static Scraper scraper;
-        private static Webhooks webhooks;
         private static System.Timers.Timer timer;
-
-        private static WebhookSender webhookSender;
+        private static IScraper _scraper;
+        private static IWebhookSender _webhookSender;
 
         static void Main(string[] args)
         {
-            Config cfg = new Config("config.txt");
             using (var services = ConfigureServices())
             {
-                scraper = services.GetRequiredService<Scraper>();
-                webhooks = services.GetRequiredService<Webhooks>();
-                try
-                {
-                    webhookUrls = cfg.LoadWebhookUrls();
-                }
-                catch (Exception e)
-                {
-                    Logger.Log(e.Message);
-                    Logger.Log("Loading Webhook urls failed. Make sure \"config.txt\" exist and is not empty");
-                    return;
-                }
-                webhookSender = new WebhookSender(webhooks, webhookUrls);
+                _scraper = services.GetRequiredService<IScraper>();
+                _webhookSender = services.GetRequiredService<IWebhookSender>();
                 Task.Run(() => Logger.LogAsync("Program starting..."));
             }
             
@@ -54,9 +40,9 @@ namespace DiscordNewsBot
 		private static ServiceProvider ConfigureServices()
 		{
 			return new ServiceCollection()
-                .AddSingleton<Scraper>()
-                .AddSingleton<Webhooks>()
-                .AddSingleton<WebhookSender>()
+                .AddTransient<IScraper, Scraper>()
+                .AddTransient<IWebhooks, Webhooks>()
+                .AddSingleton<IWebhookSender, WebhookSender>()
                 .AddSingleton<IMemory, Memory>()
 				.BuildServiceProvider();
 		}
@@ -67,8 +53,8 @@ namespace DiscordNewsBot
             {
                 List<Article> articles = new List<Article>();
                 await Logger.LogAsync("Looking for news...");
-                articles = await scraper.GetAllArticlesAsync();
-                webhookSender.EnqueueArticles(articles);
+                articles = await _scraper.GetAllArticlesAsync();
+                _webhookSender.EnqueueArticles(articles);
                 timer.Start();
             }
             catch(Exception exception)

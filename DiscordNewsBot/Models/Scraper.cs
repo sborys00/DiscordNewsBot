@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace DiscordNewsBot.Models
 {
-    class Scraper
+    class Scraper : IScraper
     {
         public async Task<List<Article>> GetAllArticlesAsync()
         {
             string[] urls = { "https://wi.pb.edu.pl/aktualnosci/", "https://pb.edu.pl/aktualnosci/" };
 
             List<Task<List<Article>>> tasks = new List<Task<List<Article>>>();
-            foreach(var url in urls)
+            foreach (var url in urls)
             {
                 tasks.Add(GetArticlesAsync(url));
             }
@@ -23,7 +23,7 @@ namespace DiscordNewsBot.Models
 
             //Merge all lists into one
             List<Article> articles = new List<Article>();
-            foreach(var task in results)
+            foreach (var task in results)
             {
                 articles.AddRange(task);
             }
@@ -33,7 +33,7 @@ namespace DiscordNewsBot.Models
             return articles;
         }
 
-        public async Task<List<Article>> GetArticlesAsync(string url)
+        private async Task<List<Article>> GetArticlesAsync(string url)
         {
             List<Article> articles;
 
@@ -50,7 +50,7 @@ namespace DiscordNewsBot.Models
             return articles;
         }
 
-        public List<Article> ParseArticles(HtmlDocument html)
+        private List<Article> ParseArticles(HtmlDocument html)
         {
             List<Article> articles = new List<Article>();
             var nodes = html.DocumentNode.SelectNodes("//article");
