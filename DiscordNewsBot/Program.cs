@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 using DiscordNewsBot.Models;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Serilog;
 
 namespace DiscordNewsBot
 {
@@ -18,13 +22,26 @@ namespace DiscordNewsBot
 
         static void Main(string[] args)
         {
-            using (var services = ConfigureServices())
-            {
-                _scraper = services.GetRequiredService<IScraper>();
-                _webhookSender = services.GetRequiredService<IWebhookSender>();
-                Task.Run(() => Logger.LogAsync("Program starting..."));
-            }
-            
+            var builder = new ConfigurationBuilder();
+            BuildConfig(builder);
+
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Build())
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateLogger();
+
+            var host = Host.CreateDefaultBuilder()
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddTransient<IWebhookSender, WebhookSender>()
+                    .AddTransient<IScraper, Scraper>()
+                    .AddSingleton<IMemory, Memory>()
+                    .AddSingleton<IWebhookSender, WebhookSender>();
+                })
+                .UseSerilog()
+                .Build();
+
             timer = new System.Timers.Timer(interval);
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = false;
@@ -34,16 +51,6 @@ namespace DiscordNewsBot
             //Keeps the program running
             Task.Run(() => Task.Delay(Timeout.Infinite)).GetAwaiter().GetResult();
         }
-
-		private static ServiceProvider ConfigureServices()
-		{
-			return new ServiceCollection()
-                .AddTransient<IScraper, Scraper>()
-                .AddTransient<IWebhooks, Webhooks>()
-                .AddSingleton<IWebhookSender, WebhookSender>()
-                .AddSingleton<IMemory, Memory>()
-				.BuildServiceProvider();
-		}
 
         private static async void OnTimedEvent(Object source, ElapsedEventArgs e)
         {
@@ -61,5 +68,12 @@ namespace DiscordNewsBot
             }
         }
 
+        static void BuildConfig(IConfigurationBuilder builder)
+        {
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+                .AddEnvironmentVariables();
+        }
 	}
 }
