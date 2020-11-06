@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Timers;
@@ -7,28 +8,27 @@ namespace DiscordNewsBot.Models
 {
     class WebhookSender : IWebhookSender
     {
-        const int defInterval = 1000; //time in ms
+        private readonly int sendInterval; //time in ms
         private readonly IWebhooks _webhooks;
         private readonly IMemory _memory;
+        private readonly IConfiguration _config;
         private readonly string[] webhookUrls;
         Queue<Article> articlesToSend = new Queue<Article>();
-        Timer timer = new System.Timers.Timer(defInterval);
+        Timer timer;
 
 
-        public WebhookSender(IMemory memory, IWebhooks webhooks)
+        public WebhookSender(IMemory memory, IWebhooks webhooks, IConfiguration config)
         {
             this._webhooks = webhooks;
             this._memory = memory;
+            this._config = config;
+            this.sendInterval = _config.GetValue<int>("WebhookSendInterval");
+            timer = new System.Timers.Timer(sendInterval);
+            this.webhookUrls = _config.GetSection("WebhookUrls").Get<string[]>();
 
-            Config cfg = new Config("config.txt");
-            try
+            if (this.webhookUrls == null)
             {
-                this.webhookUrls = cfg.LoadWebhookUrls();
-            }
-            catch (Exception e)
-            {
-                Logger.Log(e.Message);
-                Logger.Log("Loading Webhook urls failed. Make sure \"config.txt\" exist and is not empty");
+                throw new Exception("Loading webhook urls failed. Make sure WebhookUrls array in config exist and is not empty");
             }
             timer.AutoReset = true;
         }

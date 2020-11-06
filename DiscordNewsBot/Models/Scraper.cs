@@ -3,14 +3,23 @@ using System.Collections.Generic;
 using System.Net;
 using HtmlAgilityPack;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
 
 namespace DiscordNewsBot.Models
 {
     class Scraper : IScraper
     {
+        private readonly IConfiguration _config;
+
+        public Scraper(IConfiguration config)
+        {
+            this._config = config;
+        }
+
         public async Task<List<Article>> GetAllArticlesAsync()
         {
-            string[] urls = { "https://wi.pb.edu.pl/aktualnosci/", "https://pb.edu.pl/aktualnosci/" };
+            string[] urls = _config.GetSection("NewsWebsiteUrls").Get<string[]>();
 
             List<Task<List<Article>>> tasks = new List<Task<List<Article>>>();
             foreach (var url in urls)

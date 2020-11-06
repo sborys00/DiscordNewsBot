@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DiscordNewsBot": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

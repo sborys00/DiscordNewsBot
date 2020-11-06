@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -7,15 +8,19 @@ namespace DiscordNewsBot.Models
 
     public class Memory : IMemory
     {
-        private const string fileName = "archive.txt";
-        private const int fileCleaningThreshold = 50;
+        private readonly string fileName;
+        private readonly int fileCleaningThreshold;
+        private readonly IConfiguration _config;
         private FileStream fs;
         private StreamReader reader;
         private StreamWriter writer;
         private List<string> archivedUrls = new List<string>();
 
-        public Memory()
+        public Memory(IConfiguration config)
         {
+            this._config = config;
+            this.fileName = _config.GetValue<string>("MemoryFileName");
+            this.fileCleaningThreshold = _config.GetValue <int>("FileCleaningThreshold");
             //To make sure file exists
             OpenFile();
             CloseFile();

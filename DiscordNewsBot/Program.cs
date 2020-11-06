@@ -15,34 +15,39 @@ namespace DiscordNewsBot
     public class Program
     {
         //loop interval in ms
-        private static int interval = 60000;
         private static System.Timers.Timer timer;
         private static IScraper _scraper;
         private static IWebhookSender _webhookSender;
+        private static IConfiguration _config;
 
         static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder();
-            BuildConfig(builder);
-
+            //BuildConfig(builder);
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Build())
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
                 .CreateLogger();
-
-            var host = Host.CreateDefaultBuilder()
+            
+            var host = Host.CreateDefaultBuilder().ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    BuildConfig(config);
+                })
                 .ConfigureServices((context, services) =>
                 {
-                    services.AddTransient<IWebhookSender, WebhookSender>()
-                    .AddTransient<IScraper, Scraper>()
-                    .AddSingleton<IMemory, Memory>()
-                    .AddSingleton<IWebhookSender, WebhookSender>();
+                    services.AddTransient<IScraper, Scraper>()
+                    .AddTransient<IWebhooks, Webhooks>()
+                    .AddSingleton<IWebhookSender, WebhookSender>()
+                    .AddSingleton<IMemory, Memory>();
                 })
                 .UseSerilog()
                 .Build();
+            _scraper = host.Services.GetRequiredService<IScraper>();
+            _webhookSender = host.Services.GetRequiredService<IWebhookSender>();
+            _config = host.Services.GetRequiredService<IConfiguration>();
 
-            timer = new System.Timers.Timer(interval);
+            timer = new System.Timers.Timer(_config.GetValue<int>("ScanningInterval"));
             timer.Elapsed += OnTimedEvent;
             timer.AutoReset = false;
             timer.Enabled = true;
@@ -60,6 +65,10 @@ namespace DiscordNewsBot
                 await Logger.LogAsync("Looking for news...");
                 articles = await _scraper.GetAllArticlesAsync();
                 _webhookSender.EnqueueArticles(articles);
+
+                //keeps interval times updated to current config value
+                timer.Interval = _config.GetValue<int>("ScanningInterval");
+
                 timer.Start();
             }
             catch(Exception exception)
@@ -72,7 +81,7 @@ namespace DiscordNewsBot
         {
             builder.SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production"}.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "Production"}.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
         }
 	}
