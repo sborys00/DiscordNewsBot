@@ -12,8 +12,6 @@ namespace DiscordNewsBot
     {
         //loop interval in ms
         private static int interval = 60000;
-        private static string[] webhookUrls;
-
         private static System.Timers.Timer timer;
         private static IScraper _scraper;
         private static IWebhookSender _webhookSender;
