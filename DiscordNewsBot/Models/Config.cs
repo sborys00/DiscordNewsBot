@@ -25,6 +25,10 @@ namespace DiscordNewsBot.Models
                     urls.Add(line);
                 }
             }
+            if(urls.Count < 1)
+            {
+                throw new Exception("Atleast one webhook urls is required!");
+            }
             return urls.ToArray();
         }
     }
