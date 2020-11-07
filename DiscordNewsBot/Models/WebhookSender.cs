@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -24,7 +26,8 @@ namespace DiscordNewsBot.Models
             this._config = config;
             this.sendInterval = _config.GetValue<int>("WebhookSendInterval");
             timer = new System.Timers.Timer(sendInterval);
-            this.webhookUrls = _config.GetSection("WebhookUrls").Get<string[]>();
+            NewsWebsite[] websites = _config.GetSection("NewsWebsites").Get<NewsWebsite[]>();
+            this.webhookUrls = websites.Select(o => o.Url).ToArray();
 
             if (this.webhookUrls == null)
             {
