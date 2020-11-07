@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace DiscordNewsBot.Models
 {
-    class Embed
+    class Embed : IEmbed
     {
         public string title { get; set; }
         public string description { get; set; }
@@ -16,28 +17,15 @@ namespace DiscordNewsBot.Models
         public Thumbnail thumbnail { get; set; }
         public Footer footer { get; set; }
 
-        [NonSerialized]
-        public string entityName;
-
-        public Embed (Article article)
+        public Embed(Article article)
         {
             this.title = article.title;
             this.description = article.content;
             this.url = article.url;
-            
-            if(article.url.Contains("https://wi.pb.edu.pl"))
-            {
-                this.color = 17497;
-                this.entityName = "Wydział Informatyki PB";
-            } else if (article.url.Contains("https://pb.edu.pl"))
-            {
-                this.color = 74756;
-                this.entityName = "Politechnika Białostocka";
-            }
-
             this.thumbnail = new Thumbnail(article.thumbnail);
             this.footer = new Footer(article.date);
-            this.author = new Author(entityName);
+            this.author = new Author(article.author);
+            this.color = article.color;
         }
     }
 

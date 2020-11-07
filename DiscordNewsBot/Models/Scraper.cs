@@ -11,15 +11,18 @@ namespace DiscordNewsBot.Models
     class Scraper : IScraper
     {
         private readonly IConfiguration _config;
+        private readonly NewsWebsite[] newsWebsites;
 
         public Scraper(IConfiguration config)
         {
             this._config = config;
+            this.newsWebsites = _config.GetSection("NewsWebsites").Get<NewsWebsite[]>();
         }
 
         public async Task<List<Article>> GetAllArticlesAsync()
         {
-            string[] urls = _config.GetSection("NewsWebsiteUrls").Get<string[]>();
+            NewsWebsite[] websites = _config.GetSection("NewsWebsites").Get<NewsWebsite[]>();
+            string[] urls = websites.Select(o => o.Url).ToArray();
 
             List<Task<List<Article>>> tasks = new List<Task<List<Article>>>();
             foreach (var url in urls)
@@ -71,6 +74,15 @@ namespace DiscordNewsBot.Models
                 article.thumbnail = nodes[i].SelectSingleNode(".//img").Attributes["src"].Value;
                 article.date = nodes[i].SelectSingleNode(".//span").InnerText.Replace(" ", "");
                 articles.Add(article);
+
+                foreach (NewsWebsite website in newsWebsites)
+                {
+                    if (article.url.Contains(website.Url.Split(".pl")[0]))
+                    {
+                        article.author = website.Name;
+                        article.color = website.Color;
+                    }
+                }
             }
             return articles;
         }

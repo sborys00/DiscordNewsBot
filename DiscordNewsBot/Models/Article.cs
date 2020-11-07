@@ -11,5 +11,8 @@ namespace DiscordNewsBot.Models
         public string url;
         public string thumbnail;
         public string date;
+
+        public string author;
+        public int color;
     }
 }
