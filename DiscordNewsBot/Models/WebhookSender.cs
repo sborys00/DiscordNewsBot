@@ -42,8 +42,11 @@ namespace DiscordNewsBot.Models
             {
                 this.articlesToSend.Enqueue(article);
             }
-            timer.Start();
-            timer.Elapsed += async (source, e) => await SendEvent(source, e);
+            if(timer.Enabled == false)
+            {
+                timer.Start();
+                timer.Elapsed += async (source, e) => await SendEvent(source, e);
+            }
         }
 
         private async Task SendEvent(Object source, ElapsedEventArgs e)
