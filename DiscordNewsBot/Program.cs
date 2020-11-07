@@ -38,6 +38,7 @@ namespace DiscordNewsBot
                 {
                     services.AddTransient<IScraper, Scraper>()
                     .AddTransient<IWebhooks, Webhooks>()
+
                     .AddSingleton<IWebhookSender, WebhookSender>()
                     .AddSingleton<IMemory, Memory>();
                 })
@@ -61,6 +62,7 @@ namespace DiscordNewsBot
         {
             try
             {
+                timer.Stop();
                 List<Article> articles = new List<Article>();
                 Log.Logger.Information("Looking for news..");
                 articles = await _scraper.GetAllArticlesAsync();
