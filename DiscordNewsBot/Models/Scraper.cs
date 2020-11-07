@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Reflection.PortableExecutable;
 
 namespace DiscordNewsBot.Models
 {
@@ -72,9 +74,13 @@ namespace DiscordNewsBot.Models
                 article.date = nodes[i].SelectSingleNode(".//span").InnerText.Replace(" ", "");
                 articles.Add(article);
 
+                string rgx = @"(\d.../).*";
+                string directory = article.url;
+                directory = Regex.Replace(directory, rgx, "");
+
                 foreach (NewsWebsite website in newsWebsites)
                 {
-                    if (article.url.Contains(website.Url.Split(".pl")[0]))
+                    if (website.NewsUrlDirectory == directory)
                     {
                         article.author = website.Name;
                         article.color = website.Color;
