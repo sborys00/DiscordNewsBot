@@ -27,6 +27,7 @@ namespace DiscordNewsBot.Models
                         string responseContent = await httpResponse.Content.ReadAsStringAsync();
                         if (responseContent.Length > 0)
                         {
+                            Log.Logger.Warning($"{article.title} could not be sent: ");
                             Log.Logger.Warning(responseContent);
                         }
                     }

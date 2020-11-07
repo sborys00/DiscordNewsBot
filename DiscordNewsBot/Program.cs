@@ -66,8 +66,10 @@ namespace DiscordNewsBot
                 List<Article> articles = new List<Article>();
                 Log.Logger.Information("Looking for news..");
                 articles = await _scraper.GetAllArticlesAsync();
-                _webhookSender.EnqueueArticles(articles);
-
+                if(articles.Count > 0)
+                {
+                    _webhookSender.EnqueueArticles(articles);
+                }
                 //keeps interval times updated to current config value
                 timer.Interval = _config.GetValue<int>("ScanningInterval");
 

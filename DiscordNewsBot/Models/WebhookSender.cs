@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Serilog;
+using Serilog.Core;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Timers;
@@ -38,6 +41,7 @@ namespace DiscordNewsBot.Models
         {
             articles = FilterOutSentArticles(articles);
             articles = SortArticlesByDate(articles);
+            Log.Logger.Information($"{articles.Count} new articles found");
             foreach (Article article in articles)
             {
                 this.articlesToSend.Enqueue(article);
@@ -64,6 +68,7 @@ namespace DiscordNewsBot.Models
 
         public async Task SendOneArticleAsync(Article article)
         {
+            Log.Logger.Information($"Sending {article.title}");
             foreach (string url in webhookUrls)
             {
                 await _webhooks.SendWebhook(url, article);
@@ -77,7 +82,7 @@ namespace DiscordNewsBot.Models
             List<Article> newArticles = new List<Article>();
             foreach (Article article in articles)
             {
-                if (_memory.IsInArchive(article.url) == false)
+                if (_memory.IsInArchive(article.url) == false && articlesToSend.Any(a => a.url == article.url) == false)
                 {
                     newArticles.Add(article);
                 }
