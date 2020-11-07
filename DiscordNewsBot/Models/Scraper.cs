@@ -5,6 +5,7 @@ using HtmlAgilityPack;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Text;
 
 namespace DiscordNewsBot.Models
 {
@@ -47,16 +48,12 @@ namespace DiscordNewsBot.Models
         private async Task<List<Article>> GetArticlesAsync(string url)
         {
             List<Article> articles;
-
             HtmlDocument html = new HtmlDocument();
+            HtmlWeb web = new HtmlWeb();
+            web.AutoDetectEncoding = false;
+            web.OverrideEncoding = Encoding.UTF8;
 
-            using (WebClient client = new WebClient())
-            {
-                string content = await client.DownloadStringTaskAsync(url);
-                html.LoadHtml(content);
-                if (html.Text.Length == 0)
-                    throw new NullReferenceException(url + " is empty");
-            }
+            html = await web.LoadFromWebAsync(url);
             articles = ParseArticles(html);
             return articles;
         }
@@ -69,8 +66,8 @@ namespace DiscordNewsBot.Models
             {
                 Article article = new Article();
                 article.url = nodes[i].SelectSingleNode(".//a").Attributes["href"].Value;
-                article.title = nodes[i].SelectSingleNode(".//h3/a").InnerText;
-                article.content = nodes[i].GetDirectInnerText().Trim() + "...";
+                article.title = HtmlEntity.DeEntitize(nodes[i].SelectSingleNode(".//h3/a").InnerText.Trim());
+                article.content = HtmlEntity.DeEntitize(nodes[i].GetDirectInnerText().Trim()) + "...";
                 article.thumbnail = nodes[i].SelectSingleNode(".//img").Attributes["src"].Value;
                 article.date = nodes[i].SelectSingleNode(".//span").InnerText.Replace(" ", "");
                 articles.Add(article);
