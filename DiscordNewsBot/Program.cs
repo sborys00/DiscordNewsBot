@@ -38,7 +38,6 @@ namespace DiscordNewsBot
                 {
                     services.AddTransient<IScraper, Scraper>()
                     .AddTransient<IWebhooks, Webhooks>()
-
                     .AddSingleton<IWebhookSender, WebhookSender>()
                     .AddSingleton<IMemory, Memory>();
                 })
