@@ -77,6 +77,7 @@ namespace DiscordNewsBot
             catch(Exception e)
             {
                 Log.Logger.Error(e.Message);
+                timer.Start();
             }
         }
 
