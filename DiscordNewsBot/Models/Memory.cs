@@ -87,5 +87,11 @@ namespace DiscordNewsBot.Models
             this.writer = new StreamWriter(fs);
             writer.Flush();
         }
+
+        private string ShortenUrl(string url)
+        {
+            int startIndex = url.Substring(0, url.Length - 1).LastIndexOf('/');
+            return url.Substring(startIndex + 1, url.Length - startIndex);
+        }
     }
 }
