@@ -40,7 +40,9 @@ namespace DiscordNewsBot.Models
 
         public void SaveUrl(string url)
         {
-            if(archivedUrls.Count > fileCleaningThreshold)
+            url = ShortenUrl(url);
+
+            if (archivedUrls.Count > fileCleaningThreshold)
             {
                 ClearOldUrls();
             }
@@ -50,6 +52,7 @@ namespace DiscordNewsBot.Models
 
         public bool IsInArchive(string url)
         {
+            url = ShortenUrl(url);
             return archivedUrls.Contains(url);
         }
 
@@ -91,7 +94,7 @@ namespace DiscordNewsBot.Models
         private string ShortenUrl(string url)
         {
             int startIndex = url.Substring(0, url.Length - 1).LastIndexOf('/');
-            return url.Substring(startIndex + 1, url.Length - startIndex);
+            return url.Substring(startIndex, url.Length - startIndex);
         }
     }
 }
