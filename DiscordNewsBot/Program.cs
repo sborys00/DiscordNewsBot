@@ -23,7 +23,6 @@ namespace DiscordNewsBot
         static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder();
-            //BuildConfig(builder);
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Build())
                 .Enrich.FromLogContext()
@@ -69,7 +68,6 @@ namespace DiscordNewsBot
                 {
                     _webhookSender.EnqueueArticles(articles);
                 }
-                //keeps interval times updated to current config value
                 timer.Interval = _config.GetValue<int>("ScanningInterval");
 
                 timer.Start();

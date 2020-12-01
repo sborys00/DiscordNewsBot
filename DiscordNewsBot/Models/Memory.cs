@@ -21,7 +21,7 @@ namespace DiscordNewsBot.Models
             this._config = config;
             this.fileName = _config.GetValue<string>("MemoryFileName");
             this.fileCleaningThreshold = _config.GetValue <int>("FileCleaningThreshold");
-            //To make sure file exists
+            //makes sure file exists
             OpenFile();
             CloseFile();
 
