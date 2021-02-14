@@ -25,12 +25,12 @@ namespace DiscordNewsBot.Models
         public async Task<List<Article>> GetAllArticlesAsync()
         {
             NewsWebsite[] websites = _config.GetSection("NewsWebsites").Get<NewsWebsite[]>();
-            string[] urls = websites.Select(o => o.Url).ToArray();
+            //string[] urls = websites.Select(o => o.Url).ToArray();
 
             List<Task<List<Article>>> tasks = new List<Task<List<Article>>>();
-            foreach (var url in urls)
+            foreach (var website in websites)
             {
-                tasks.Add(GetArticlesAsync(url));
+                tasks.Add(GetArticlesAsync(website));
             }
 
             var results = await Task.WhenAll(tasks);
@@ -47,7 +47,7 @@ namespace DiscordNewsBot.Models
             return articles;
         }
 
-        private async Task<List<Article>> GetArticlesAsync(string url)
+        private async Task<List<Article>> GetArticlesAsync(NewsWebsite website)
         {
             List<Article> articles;
             HtmlDocument html = new HtmlDocument();
@@ -55,37 +55,26 @@ namespace DiscordNewsBot.Models
             web.AutoDetectEncoding = false;
             web.OverrideEncoding = Encoding.UTF8;
 
-            html = await web.LoadFromWebAsync(url);
-            articles = ParseArticles(html);
+            html = await web.LoadFromWebAsync(website.Url);
+            articles = ParseArticles(html, website);
             return articles;
         }
 
-        private List<Article> ParseArticles(HtmlDocument html)
+        private List<Article> ParseArticles(HtmlDocument html, NewsWebsite website)
         {
             List<Article> articles = new List<Article>();
-            var nodes = html.DocumentNode.SelectNodes("//article");
+            var nodes = html.DocumentNode.SelectNodes(website.ArticleSelector);
             for (int i = 0; i < nodes.Count; i++)
             {
                 Article article = new Article();
-                article.url = nodes[i].SelectSingleNode(".//a").Attributes["href"].Value;
-                article.title = HtmlEntity.DeEntitize(nodes[i].SelectSingleNode(".//h3").InnerText.Trim());
-                article.content = HtmlEntity.DeEntitize(nodes[i].GetDirectInnerText().Trim()) + "...";
-                article.thumbnail = nodes[i].SelectSingleNode(".//img").Attributes["src"].Value;
-                article.date = nodes[i].SelectSingleNode(".//span").InnerText.Replace(" ", "");
+                article.url = nodes[i].SelectSingleNode(website.UrlSelector).Attributes["href"].Value;
+                article.title = HtmlEntity.DeEntitize(nodes[i].SelectSingleNode(website.TitleSelector).InnerText.Trim());
+                article.content = HtmlEntity.DeEntitize(nodes[i].SelectSingleNode(website.ContentSelector).GetDirectInnerText().Trim()) + "...";
+                article.thumbnail = nodes[i].SelectSingleNode(website.ThumbnailSelector).Attributes["src"].Value;
+                article.date = nodes[i].SelectSingleNode(website.DateSelector).InnerText.Replace(" ", "");
+                article.author = website.Name;
+                article.color = website.Color;
                 articles.Add(article);
-
-                string rgx = @"(\d.../).*";
-                string directory = article.url;
-                directory = Regex.Replace(directory, rgx, "");
-
-                foreach (NewsWebsite website in newsWebsites)
-                {
-                    if (website.NewsUrlDirectory == directory)
-                    {
-                        article.author = website.Name;
-                        article.color = website.Color;
-                    }
-                }
             }
             return articles;
         }
